@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בדיקת מספר רכב</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #d4e9d4;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d572c;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #2d572c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1e3d1f;
+        }
+
+        h2 {
+            color: #2d572c;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .result-box {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-box p {
+            margin: 10px 0;
+            padding: 5px;
+            background-color: #f4f4f4;
+            border-radius: 3px;
+        }
+
+        .result-box strong {
+            display: block;
+            color: #2d572c;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #2d572c;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>בדיקת מספר רכב</h1>
+    <label for="vehicleNumber">מספר רכב לחיפוש:</label>
+    <input type="text" id="vehicleNumber" placeholder="הכנס מספר רכב">
+    <button>בדוק</button>
+
+    <h2>תוצאות</h2>
+    <div id="result" class="result-box">
+        <!-- התוצאות יופיעו כאן -->
+    </div>
+
+    <div class="footer">
+        חמ"ל: 052-959-0519
+    </div>
+</div>
+
+<script>
+    document.querySelector('button').addEventListener('click', checkVehicle);
+
+    async function checkVehicle() {
+        console.log("הפונקציה פועלת");
+
+        const vehicleNumber = document.getElementById('vehicleNumber').value;
+        if (!vehicleNumber) {
+            console.log("לא הוזן מספר רכב");
+            document.getElementById('result').innerHTML = '<p>אנא הזן מספר רכב</p>';
+            return;
+        }
+
+        const url = 'https://sheets.googleapis.com/v4/spreadsheets/18vxhE3WWq6MLzvRw7md6CJaH5jV_to0FX4I237GMqDs/values/נתונים!B:I?key=AIzaSyA6KN_6PzpJTtlYwzMFG0mVts8tlUF2Vnw';
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            const vehicleRecords = data.values;
+            const result = document.getElementById('result');
+
+            result.innerHTML = '';
+
+            const record = vehicleRecords.find(row => row[0] === vehicleNumber);
+
+            if (record) {
+                result.innerHTML = `
+                    <p><strong>סוג וצבע הרכב:</strong> ${record[1]}</p>
+                    <p><strong>נהג:</strong> ${record[2]}</p>
+                    <p><strong>נהג נוסף:</strong> ${record[3] || 'אין'}</p>
+                    <p><strong>תפקיד/מטרת הגעה:</strong> ${record[4]}</p>
+                    <p><strong>טלפון:</strong> ${record[5]}</p>
+                    <p><strong>נותן האישור:</strong> ${record[6]}</p>
+                    <p><strong>תוקף האישור:</strong> ${record[7] || 'אין'}</p>
+                `;
+            } else {
+                result.innerHTML = '<p>הרכב לא נמצא במערכת.</p>';
+            }
+        } catch (error) {
+            console.error('שגיאה:', error);
+            result.innerHTML = '<p>שגיאה בשליפת הנתונים, אנא נסה שוב.</p>';
+        }
+    }
+</script>
+
+</body>
+</html>
